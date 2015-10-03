@@ -2,7 +2,8 @@
 
 import sys
 import common
-from common import write_stderr
+from common import write_log
+from common import Timer
 
 class Strategy:
     def __init__(self):
@@ -10,7 +11,7 @@ class Strategy:
 	self.total_rec_num = 200
 
 	# 最多处理多少个sim_cat的商品
-	self.max_sim_cat_process = 30
+	self.max_sim_cat_process = 10
 
 
     def get_total_rec_num(self):
@@ -51,30 +52,31 @@ class Predictor :
 		key = (w1, w2)
 		val = self.word_iterm_base.get(key, 0)
 		total_val += (val + 1)
-	
-	total_val /= (len(title1) * len(title2))
 	return total_val
+
 
     def __find_sim_item_from_a_list(self, target_item, sim_item_ids, idx):
 	target_title = target_item[1]
-
+	
 	rec_items = []
 	for sim_id in sim_item_ids:
 	    sim_item = self.dim_items_index.get(sim_id, -1)
 	    if sim_item == -1 : continue
 
 	    sim_title = sim_item[1]
+	    timer = Timer()
 	    val = self.__cal_title_sim(target_title, sim_title)
+	    write_log(msg = "__cal_title_sim cost time:%f, target_title size:%d, sim_title size:%d" % (timer.get_diff(), len(target_title), len(sim_title)))
 	    rec_items.append( (sim_id, val) )
 
 	num_to_get = self.strategy.num_to_return_of_this_sim_cat(idx)
 	if len(rec_items) > num_to_get:
-	    rec_items.sort(x, y, cmp(x[1], y[1]))
+	    rec_items.sort(lambda y,x : cmp(x[1], y[1]))
 	    rec_items = rec_items[0: num_to_get]
 	return rec_items
 
     
-    def __get_rec_item_ids(item_id, sim_cat_ids):
+    def __get_rec_item_ids(self, item_id, sim_cat_ids):
 	"""
 	获取推荐item_id
 	Args:
@@ -86,21 +88,22 @@ class Predictor :
 
 	target_item = self.dim_items_index.get(item_id, -1)
 	if target_item == -1:
-	    write_stderr(sys._getframe().f_lineno, "cannot get info of item_id:%d" % (item_id) )
+	    write_log(sys._getframe().f_lineno, "cannot get info of item_id:%d" % (item_id) )
 	    return
 
 	rec_items = []
 	sim_cat_ids = sim_cat_ids[0: self.strategy.get_max_sim_cat_process()]
 	for i in range(0, len(sim_cat_ids)):
-	    cat_id = sim_cat_ids[i]
+	    (cat_id, sim_value) = sim_cat_ids[i]
 	    sim_item_ids = self.cat_to_item_rindex.get(cat_id, [])
-	    if len(sim_cat_ids) == 0 : 
-		write_stderr(sys._getframe().f_lineno, "cat_id:%d has no item" % (cat_id) )
+	    if len(sim_item_ids) == 0 : 
+		write_log(sys._getframe().f_lineno, "cat_id:%d has no item" % (cat_id) )
 		continue
 	    res_list = self.__find_sim_item_from_a_list(target_item, sim_item_ids, i)
-	    rec_items.exten(res_list)
+	    rec_items.extend(res_list)
 
-	rec_items.sort(x, y, cmp(x[1], y[1]))
+	write_log(msg = 'process item_id:%d, rec_items size:%d' % (item_id, len(rec_items)) )
+	rec_items.sort(lambda y,x : cmp(x[1], y[1]))
 	rec_items = rec_items[0: self.strategy.get_total_rec_num()]
 
 	final_res = []
@@ -118,6 +121,7 @@ class Predictor :
 	sim_cat_ids = self.cat_sim_rindex.get(cat_id, -1)
 	if sim_cat_ids == -1 : return []
 
+	write_log(msg = 'process item_id:%d, sim_cat_ids size:%d' % (item_id, len(sim_cat_ids)) )
 	return self.__get_rec_item_ids(item_id, sim_cat_ids)
 
 
@@ -134,8 +138,6 @@ if __name__ == "__main__":
     dim_items_index_builder = DimItemsIndexBuilder()
     dim_items_index_builder.build_from_file(common.dim_items_file)
 
-    import cat_to_item_rindex_builder
-    from cat_to_item_rindex_builder import *
     cat_to_item_rindex_builder = CatToItemRindexBuilder()
     cat_to_item_rindex_builder.build_from_file(common.dim_items_file)
 
@@ -150,7 +152,7 @@ if __name__ == "__main__":
 
     import word_iterm_base_builder
     from word_iterm_base_builder import *
-    word_iterm_based_builder = WordItermBasedBuilder(dim_item_index_builder)
+    word_iterm_based_builder = WordItermBasedBuilder(dim_items_index_builder)
     word_iterm_based_builder.build_from_file(common.dim_fashion_matchsets_file)
 
     
@@ -161,9 +163,17 @@ if __name__ == "__main__":
 			  word_iterm_based_builder)
 
 
-    fd = open(common.test_items_file)
-    for line in fd:
+
+    write_log(msg = 'begin predict')
+    input_fd  = open(common.test_items_file)
+    output_fd = open(common.res_test_items_file, 'w')
+    for line in input_fd:
 	item_id = (int)(line.strip())
 	res = predictor.process(item_id)
+	if len(res) > 0:
+	    res_str = ",".join( map(str, res) )
+	    print >> output_fd, "%d %s" % (item_id, res_str)
+	else:
+	    print >> output_fd, "%d" % item_id
 
 

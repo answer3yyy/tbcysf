@@ -25,20 +25,42 @@ class DimItemsIndexBuilder:
     def get_res(self):
 	return self.dim_item_index
 
+# 创建cat到item的倒排索引
+class CatToItemRindexBuilder :
+    def __init__(self):
+	self.cat_to_item_rindex = {}
+	pass
+
+    def build_from_file(self, filename):
+	self.cat_to_item_rindex = {}
+	fd = open(filename)
+
+	for line in fd:
+	    items = line.strip().split(' ')
+	    if len(items) < 3: continue
+	    item_id = (int)(items[0])
+	    cat_id = (int)(items[1])
+
+	    doc_list = self.cat_to_item_rindex.get(cat_id, [])
+	    doc_list.append(item_id)
+	    self.cat_to_item_rindex[cat_id] = doc_list
+
+
+    def get_res(self):
+	return self.cat_to_item_rindex
+
+
 
 if __name__ == "__main__":
     dim_items_index_builder = DimItemsIndexBuilder()
+    dim_items_index_builder.build_from_file(common.dim_items_file)
 
-    filename = '../source_data/dim_items.txt'
-    dim_items_index_builder.build_from_file(filename)
-    dim_items_index = dim_item_index_builder.get_res()
-    print dim_item_index
+    cat_to_item_rindex_builder = CatToItemRindexBuilder()
+    cat_to_item_rindex_builder.build_from_file(common.dim_items_file)
 
-    for (k,v) in dim_item_index.items():
-	print k,
-	print " ",
-	print v[0],
-	print " ",
-	print v[1]
 
-	    
+
+
+
+
+
