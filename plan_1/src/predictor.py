@@ -93,14 +93,20 @@ class Predictor :
 
 	rec_items = []
 	sim_cat_ids = sim_cat_ids[0: self.strategy.get_max_sim_cat_process()]
+	count = 0
+	timer_total = Timer()
 	for i in range(0, len(sim_cat_ids)):
 	    (cat_id, sim_value) = sim_cat_ids[i]
 	    sim_item_ids = self.cat_to_item_rindex.get(cat_id, [])
 	    if len(sim_item_ids) == 0 : 
 		write_log(sys._getframe().f_lineno, "cat_id:%d has no item" % (cat_id) )
 		continue
+	    timer = Timer()
+	    count += len(sim_item_ids)
 	    res_list = self.__find_sim_item_from_a_list(target_item, sim_item_ids, i)
+	    write_log(msg = "__find_sim_item_from_a_list cost time:%f, sim_item_ids size:%d, i:%d" % (timer.get_diff(), len(sim_item_ids), i))
 	    rec_items.extend(res_list)
+	write_log(msg = "all__find_sim_item_from_a_list cost time:%f, all_sim_item_ids size:%d" % (timer_total.get_diff(), count))
 
 	write_log(msg = 'process item_id:%d, rec_items size:%d' % (item_id, len(rec_items)) )
 	rec_items.sort(lambda y,x : cmp(x[1], y[1]))
@@ -140,6 +146,7 @@ if __name__ == "__main__":
 
     cat_to_item_rindex_builder = CatToItemRindexBuilder()
     cat_to_item_rindex_builder.build_from_file(common.dim_items_file)
+
 
     import cat_sim_builder
     from cat_sim_builder import *
