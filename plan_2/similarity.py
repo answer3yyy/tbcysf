@@ -1,4 +1,7 @@
 import codecs
+import pymongo
+conn = pymongo.Connection(host="127.0.0.1",port=27017)
+db = conn.tianchi
 
 def matchFix():
 	f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
@@ -23,12 +26,18 @@ def matchFix():
 		f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
 		for j in xrange(len(f)):
 			f[j] = f[j].split()[1]
-			if item in f[j]:
+			jTemp = ";".join(f[j].split(u","))
+			jList = jTemp.split(u";") 
+			if item in jList:
 				#print f[j]
+				#print jList
 				seqList.append(f[j])
 		resultSetTemp = matchFix_(item,seqList)
-		#print resultSetTemp
+		set2db = {"item":item,"simset":resultSetTemp["simset"],"matchset":resultSetTemp["simset"]}
+		#print set2db
+		db.dim_fashion_matchsets.insert(set2db)
 		resultSet[item] = resultSetTemp
+		#print resultSet
 		#print resultSet
 		#break
 	return totalItem,resultSet
@@ -45,8 +54,8 @@ def matchFix_(item,itemSeqList):
 				#print i
 				if u"," in i and item in i:
 					simsetTemp = i.split(u",")
-					print simsetTemp
-					print item
+					#print simsetTemp
+					#print item
 					simsetTemp.remove(item)
 					simset.extend(simsetTemp)
 					break
@@ -69,5 +78,6 @@ def matchFix_(item,itemSeqList):
 
 
 if __name__ == '__main__':
+	rec = "2232"
 	totalItem,resultSet = matchFix()
 	print resultSet

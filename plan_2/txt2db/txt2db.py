@@ -58,5 +58,5 @@ def match2db():
 
 if __name__ == '__main__':
 	#txt2db1()
-	#image_feature2db()
-	match2db()
+	image_feature2db()
+	#match2db()
