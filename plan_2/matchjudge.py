@@ -22,10 +22,28 @@ def matchset():
 	return totalItem
 
 def matchJudge(item,matchList,num = 200):
-	cat = db.dim_items.find_one({"item":item})["cat"]#找出目录TODO这边可以优化，不止一个
-	print cat
-	simcatSet = db.dim_items.find({"cat":cat})
-	print simcatSet[0]
+	item = db.dim_items.find_one({"item":item})#找出目录TODO这边可以优化，不止一个
+	print item
+	candidate = []
+	for i in matchList:
+		temp = db.dim_items.find_one({"cat":item["cat"],"item":i})
+		print temp
+		candidate.append(temp)
+	print candidate
+	#print simcatSet[1]
+	#print len(list(simcatSet))
+
+def judgeMethod(item_a,item_b):
+	a = "11010"
+	b = "01111"
+	image_side = sum([1 for i in xrange(len(a)) if a[i]!=b[i]])
+	print image_side
+	a = set(["a","b","c"])
+	b = set(["b","c","d"])
+	title_side = 1.0*len(a & b)/len(a | b)
+	print title_side
+
+
 
 
 
@@ -33,4 +51,5 @@ def matchJudge(item,matchList,num = 200):
 if __name__ == '__main__':
 	rec = "2232"#推荐商品
 	totalItem = matchset()#专家标注
-	matchJudge(rec,[])
+	#matchJudge(rec,["41","456"])
+	judgeMethod([],[])
