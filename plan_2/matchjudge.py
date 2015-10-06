@@ -33,7 +33,14 @@ def matchJudge(item,matchList,num = 200):
 	#print simcatSet[1]
 	#print len(list(simcatSet))
 
-def judgeMethod(item_a,item_b):
+def judgeMethod(item_a,item_b):#需要测试啊
+	index = 0#评价相似性指数0~100
+	if item_a.has_key("image") and item_b.has_key("image"):
+		image_side = sum([1 for i in xrange(len(a)) if item_a["image"][i]!=item_b["image"][i]])
+	else:
+		image_side = 64
+	#test
+	'''
 	a = "11010"
 	b = "01111"
 	image_side = sum([1 for i in xrange(len(a)) if a[i]!=b[i]])
@@ -42,6 +49,17 @@ def judgeMethod(item_a,item_b):
 	b = set(["b","c","d"])
 	title_side = 1.0*len(a & b)/len(a | b)
 	print title_side
+	'''
+	if item_a.has_key("title") and item_b.has_key("title"):
+		temp_a = set(item_a["title"])
+		temp_b = set(item_b["title"])
+		title_side = 1.0*len(temp_a & temp_b)/len(temp_a | temp_b)
+	else:
+		title_side = 0.0
+	if image_side <= 5:
+		index = 100
+	elif image_side <=10:
+
 
 
 
