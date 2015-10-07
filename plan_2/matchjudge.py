@@ -27,16 +27,19 @@ def matchJudge(item,matchList,num = 200):
 	candidate = []
 	for i in matchList:
 		temp = db.dim_items.find_one({"cat":item["cat"],"item":i})
-		print temp
-		candidate.append(temp)
+		#print temp
+		if str(temp) != "None":
+			candidate.append(temp)
 	print candidate
+	for i in candidate:
+		print judgeMethod(item,i)
 	#print simcatSet[1]
 	#print len(list(simcatSet))
 
-def judgeMethod(item_a,item_b):#需要测试啊
+def judgeMethod(item_a,item_b):#需要测试啊TODO
 	index = 0#评价相似性指数0~100
 	if item_a.has_key("image") and item_b.has_key("image"):
-		image_side = sum([1 for i in xrange(len(a)) if item_a["image"][i]!=item_b["image"][i]])
+		image_side = sum([1 for i in xrange(len(item_a["image"])) if item_a["image"][i]!=item_b["image"][i]])
 	else:
 		image_side = 64
 	#test
@@ -59,6 +62,10 @@ def judgeMethod(item_a,item_b):#需要测试啊
 	if image_side <= 5:
 		index = 100
 	elif image_side <=10:
+		index = 100*title_side
+	else:
+		index = image_side*title_side
+	return index
 
 
 
@@ -69,5 +76,5 @@ def judgeMethod(item_a,item_b):#需要测试啊
 if __name__ == '__main__':
 	rec = "2232"#推荐商品
 	totalItem = matchset()#专家标注
-	#matchJudge(rec,["41","456"])
-	judgeMethod([],[])
+	matchJudge(rec,totalItem)
+	#judgeMethod([],[])
