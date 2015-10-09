@@ -3,7 +3,7 @@ import codecs
 import pymongo
 conn = pymongo.Connection(host="127.0.0.1",port=27017)
 db = conn.tianchi
-
+import idata
 
 def matchset():
 	f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
@@ -75,6 +75,6 @@ def judgeMethod(item_a,item_b):#需要测试啊TODO
 
 if __name__ == '__main__':
 	rec = "2232"#推荐商品
-	totalItem = matchset()#专家标注
-	matchJudge(rec,totalItem)
+	#totalItem = matchset()#专家标注
+	#matchJudge(rec,totalItem)
 	#judgeMethod([],[])
