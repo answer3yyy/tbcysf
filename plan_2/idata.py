@@ -75,6 +75,52 @@ def dim_matchsets_sim():
 		dataset.extend(dim_matchsets_sim_fix(temp[i]))
 	print dataset
 
+def matchFix():
+	f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
+	temp = []
+	for line in f:
+		line = line.replace("\r\n","")
+		line = line.replace("\n","")
+		temp.append(line)
+	f = temp
+	totalItem = []
+	for i in xrange(len(f)):
+		f[i] = f[i].split()[1]
+		f[i] = f[i].split(u";")
+		f[i] = ','.join(f[i])
+		f[i] = f[i].split(u",")
+		totalItem.extend(f[i])
+	totalItem = list(set(totalItem))
+	#print totalItem[0:10]
+	#print len(totalItem)
+	resultSet = {}
+	for item in totalItem:
+		#print item
+		seqList = []
+		f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
+		temp = []
+		for line in f:
+			line = line.replace("\r\n","")
+			line = line.replace("\n","")
+			temp.append(line)
+		f = temp
+		#print f
+		for j in xrange(len(f)):
+			f[j] = f[j].split()[1]
+			jTemp = ",".join(f[j].split(u";"))
+			jList = jTemp.split(u",") 
+			if item in jList:
+				#print f[j]
+				#print jList
+				seqList.append(f[j])
+		#print seqList
+		resultSetTemp = matchFix_(item,seqList)
+		resultSet[item] = resultSetTemp
+		#print resultSet
+		#print resultSet
+		#break
+	return resultSet
+
 
 #----------------------------------------------------------------------------------------
 def dim_matchsets_sim_fix(dataset = ["a","b"]):
@@ -87,9 +133,42 @@ def dim_matchsets_sim_fix(dataset = ["a","b"]):
 				result.append((dataset[i],dataset[j]))
 		return result
 
-
+def matchFix_(item,itemSeqList):
+	matchset = []
+	simset = []
+	for itemSeq in itemSeqList:
+		if item in itemSeq:
+			#print '###'
+			seqTemp = itemSeq.split(u";")
+			#print seqTemp
+			for i in seqTemp:
+				#print i
+				if u"," in i and item in i:
+					simsetTemp = i.split(u",")
+					#print simsetTemp
+					#print item
+					try:
+						simsetTemp.remove(item)
+					except:
+						print item,simsetTemp
+					simset.extend(simsetTemp)
+					break
+			matchsetTemp = []
+			for i in seqTemp:
+				if item not in i and u"," not in i:
+					matchsetTemp.append(i)
+				if item not in i and u"," in i:
+					matchsetTemp.extend(i.split(u","))
+			matchset.extend(matchsetTemp)
+	resultSet = {"matchset":list(set(matchset)),"simset":list(set(simset))}
+	return resultSet
 
 if __name__ == '__main__':
 	#print dim_item_title()
 	#print dim_item_image()["1911791"]
-	print dim_matchsets_sim()
+	#print dim_matchsets_sim()
+	import time
+	time1 = time.time()
+	print matchFix()
+	time2 = time.time()
+	print str(time2-time1)
