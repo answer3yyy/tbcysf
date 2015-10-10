@@ -53,6 +53,7 @@ class CatSimBuilder:
 		weight += (float)(weight_i + weight_j) / (float)(max_weight)
 
 		self.cat_to_cat_sim[key] = weight
+
     def get_res(self):
 	return self.cat_to_cat_sim
 
@@ -77,6 +78,14 @@ class CatSimRindexBuilder :
 	    cat_list.sort(lambda x,y : cmp(y[1],x[1])) 
 	    self.cat_sim_rindex[cat_id] = cat_list
 
+    def dump_to_file(self, filename):
+	fd = open(filename, 'w')
+	for (cat_id, cat_list) in self.cat_sim_rindex.items():
+	    print >> fd, cat_id
+	    print >> fd, len(cat_list)
+	    for (sim_cat_id, weight) in cat_list:
+		print >> fd, "%d %d" % (sim_cat_id, weight)
+
     def get_res(self):
 	return self.cat_sim_rindex
 
@@ -100,6 +109,7 @@ if __name__ == "__main__":
     cat_sim_rindex_builder = CatSimRindexBuilder()
     cat_sim_rindex_builder.build_from_CatSimBuilder(cat_sim_builder)
     cat_sim_rindex = cat_sim_rindex_builder.get_res()
-    print cat_sim_rindex
+    cat_sim_rindex_builder.dump_to_file(common.cat_sim_rindex_dump_file)
+    print len(cat_sim_rindex)
     
 

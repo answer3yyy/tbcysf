@@ -51,17 +51,21 @@ class Predictor :
 	    for w2 in title2:
 		key = (w1, w2)
 		val = self.word_iterm_base.get(key, 0)
-		total_val += (val + 1)
+		total_val += val
 	return total_val
 
 
     def __find_sim_item_from_a_list(self, target_item, sim_item_ids, idx):
 	target_title = target_item[1]
 	
+	count = 0
 	rec_items = []
 	for sim_id in sim_item_ids:
 	    sim_item = self.dim_items_index.get(sim_id, -1)
 	    if sim_item == -1 : continue
+
+	    count += 1
+	    if count > 20000: break
 
 	    sim_title = sim_item[1]
 	    timer = Timer()
@@ -137,6 +141,14 @@ class Predictor :
 
 
 if __name__ == "__main__":
+    input_filename == ''
+    if sys.argc == 2:
+	input_filename = sys.argv[1]
+
+    print input_filename
+    sys.exit(0)
+
+
     import common
 
     import dim_items_index_builder
@@ -157,11 +169,18 @@ if __name__ == "__main__":
     cat_sim = cat_sim_builder.get_res()
     cat_sim_rindex_builder.build_from_CatSimBuilder(cat_sim_builder)
 
+
     import word_iterm_base_builder
     from word_iterm_base_builder import *
     word_iterm_based_builder = WordItermBasedBuilder(dim_items_index_builder)
     word_iterm_based_builder.build_from_file(common.dim_fashion_matchsets_file)
 
+    word_iterm_based_rindex_builder = WordItermBasedRindexBuilder()
+    word_iterm_based_rindex_builder.build_from_WordItermBasedBuilder(word_iterm_based_builder)
+
+    dim_items_index_builder.clear_notimportant_word_from_title(word_iterm_based_rindex_builder)
+
+    #sys.exit(0)
     
     predictor = Predictor(dim_items_index_builder,
 			  cat_to_item_rindex_builder,

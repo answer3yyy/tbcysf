@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import sys
 
 class WordItermBasedBuilder:
@@ -55,10 +56,46 @@ class WordItermBasedBuilder:
 	for line in fd:
 	    self.__process_line(line)
 
+	# 删去低置信的值
+	for (key,weight) in self.word_iterm_based.items():
+	    if weight < 50: del self.word_iterm_based[key]
+
+    def dump_to_file(self, filename):
+	fd = open(filename, 'w')
+	for (key, weight) in self.word_iterm_based.items():
+	    (w1,w2) = key
+	    print >> fd, '%d %d %f' % (w1, w2, weight)
+
     def get_res(self):
 	return self.word_iterm_based
     
     
+class WordItermBasedRindexBuilder:
+    def __init__(self):
+	self.word_iterm_based_rindex = {}
+	pass
+
+    def build_from_WordItermBasedBuilder(self, word_iterm_based_builder):
+	word_iterm_based = word_iterm_based_builder.get_res()
+	for (key, weight) in word_iterm_based.items():
+
+	    (w1, w2) = key
+	    doclist = self.word_iterm_based_rindex.get(w1, [])
+	    doclist.append( (w2, weight) )
+	    self.word_iterm_based_rindex[w1] = doclist
+
+	    doclist = self.word_iterm_based_rindex.get(w2, [])
+	    doclist.append( (w1, weight) )
+	    self.word_iterm_based_rindex[w2] = doclist
+
+	for (w, doclist) in self.word_iterm_based_rindex.items():
+	    doclist.sort(lambda y,x : cmp(x[1], y[1]))
+	    self.word_iterm_based_rindex[w] = doclist
+
+
+
+    def get_res(self):
+	return self.word_iterm_based_rindex
 
 
 	
@@ -70,8 +107,18 @@ if __name__ == "__main__":
 
     word_iterm_based_builder = WordItermBasedBuilder(dim_item_index_builder)
     word_iterm_based_builder.build_from_file(common.dim_fashion_matchsets_file)
-    word_iterm_based = word_iterm_based_builder.get_res()
-    print word_iterm_based
+    word_iterm_based_builder.dump_to_file(common.word_iterm_base_dump_file)
+
+    
+
+    word_iterm_based_rindex_builder = WordItermBasedRindexBuilder()
+    word_iterm_based_rindex_builder.build_from_WordItermBasedBuilder(word_iterm_based_builder)
+    word_iterm_based_rindex = word_iterm_based_rindex_builder.get_res()
+
+    for (w, doclist) in word_iterm_based_rindex.items():
+	print w
+	print doclist
+
 
 
 
