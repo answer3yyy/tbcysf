@@ -169,6 +169,9 @@ if __name__ == '__main__':
 	#print dim_matchsets_sim()
 	import time
 	time1 = time.time()
-	print matchFix()
+	d =  matchFix()
+	print d
+	with open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.json", "w") as f:
+		json.dump(d, f)
 	time2 = time.time()
 	print str(time2-time1)
