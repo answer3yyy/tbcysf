@@ -4,7 +4,7 @@ import datetime
 import time
 
 dir = '../source_data/'
-#dir = '../test_data/'
+dir = '../test_data/'
 
 dim_items_file = dir + 'dim_items.txt'
 dim_fashion_matchsets_file = dir + 'dim_fashion_matchsets.txt'
@@ -26,6 +26,12 @@ word_iterm_base_dump_file = '../data/word_iterm_base_dump.txt'
 
 sample_data_output = '../data/sample_data_output.txt'
 test_data_output = '../data/test_data_output.txt'
+
+
+test_feature_file = dir + 'test_feature.txt' 
+pred_items_file   = dir + 'pred_items.txt'
+pred_fm_res_file  = '../data/pred_fm_res.txt'
+
 
 
 class Item:

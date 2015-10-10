@@ -100,7 +100,7 @@ if __name__ == "__main__":
 	    count = 0
 	    for sim_id in sim_item_ids:
 		count += 1
-		if count > 10000 : break
+		if count > 1000 : break
 		test_builder.create_a_test(test_id = item_id, match_id = sim_id)
 
 	 
