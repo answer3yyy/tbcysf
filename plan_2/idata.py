@@ -1,6 +1,6 @@
 #coding:utf-8
 import codecs
-
+import json
 def dim_item_title():
 	#商品item,cat,title
 	f = codecs.open("G:\\dev\\tianchi\\data\\dim_items\\dim_items.txt","r").readlines()
@@ -73,7 +73,12 @@ def dim_matchsets_sim():
 	dataset = []
 	for i in xrange(len(temp)):
 		dataset.extend(dim_matchsets_sim_fix(temp[i]))
-	print dataset
+	return dataset
+
+def dim_item_match_sim():
+	with open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.json", "r") as f:
+		d = json.load(f)
+	return d
 
 def matchFix():
 	f = codecs.open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.txt","r").readlines()
@@ -120,6 +125,7 @@ def matchFix():
 		#print resultSet
 		#break
 	return resultSet
+
 
 
 #----------------------------------------------------------------------------------------
@@ -170,7 +176,7 @@ if __name__ == '__main__':
 	import time
 	time1 = time.time()
 	d =  matchFix()
-	print d
+	#print d
 	with open("G:\\dev\\tianchi\\data\\dim_fashion_matchsets.json", "w") as f:
 		json.dump(d, f)
 	time2 = time.time()

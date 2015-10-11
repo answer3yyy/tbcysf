@@ -1,15 +1,56 @@
 #coding:utf-8
 import idata
+import json
+import time
+
+def matchJudge(item_a,item_b,item_title,item_image):
+	if item_title.has_key(item_a) and item_image.has_key(item_a):
+		if item_title.has_key(item_b) and item_image.has_key(item_b):
+			image_side = sum([1 for i in xrange(len(item_image[item_a])) if item_image[item_a][i]!=item_image[item_b][i]])
+			if item_title[item_a]["cat"] == item_title[item_b]["cat"]:
+				cat_side = 1
+			else:
+				cat_side = 0
+			temp_a = set(item_title[item_b]["title"])
+			temp_b = set(item_title[item_b]["title"])
+			title_side = 1.0*len(temp_a & temp_b)/len(temp_a | temp_b)
+			return (image_side,cat_side,title_side)
+		else:
+			return "b can not be found"
+	return "a can not be found"
+
+def test_matchJudge(item_title,item_image):
+	item_match = idata.dim_matchsets_sim()[0:100]
+	d = []
+	for i in xrange(len(item_match)):
+		d.append(matchJudge(item_match[i][0],item_match[i][1],item_title,item_image))
+	with open("G:\\dev\\tianchi\\data\\matchjudge.json", "w") as f:
+		json.dump(d, f)
+
+
 
 if __name__ == '__main__':
 	rec = "2232"#推荐商品
-	item_title = idata.dim_item_title()#{"XXX":{"title":[],"cat"}}
+	item_title = idata.dim_item_title()#{"XXX":{"title":[],"cat":"xxx"}}
 	#print item_title
 	item_image = idata.dim_item_image()#{"XXX":"00101010010"}
 	#print item_image
 	item = idata.dim_matchsets_total()
-	print "dataloaded!!"
+	#test_matchJudge(item_title,item_image)#测试相似性
+	item_match_sim = idata.dim_item_match_sim()#{"xxx":{matchset:[],simset:[]}}
+	print "data ready!"
+	cat = item_title[rec]["cat"]
+	print cat
+	candidate = []
+	time1 = time.time()
+	for i in item:
+		temp = matchJudge(rec,i,item_title,item_image)
+		if temp[1] == 1:
+			if temp[2] >= 1.0:
+				candidate.append(i)
+	print candidate
+	print len(candidate)
+	time2 = time.time()
+	print str(time2-time1)
 
-	
-	print item_title[rec]
-	print item_image[rec]
+
