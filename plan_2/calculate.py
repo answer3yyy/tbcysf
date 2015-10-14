@@ -41,6 +41,7 @@ if __name__ == '__main__':
 	item = idata.dim_matchsets_total()
 	#test_matchJudge(item_title,item_image)#测试相似性
 	item_match_sim = idata.dim_item_match_sim()#{"xxx":{matchset:[],simset:[]}}
+	#print len(item),len(item_match_sim)
 	print "data ready!"
 	cat = item_title[rec]["cat"]
 	print cat
@@ -57,11 +58,13 @@ if __name__ == '__main__':
 	print len(candidate)
 	time2 = time.time()
 	print str(time2-time1)
-	candidate = sorted(candidate,key=lambda candidate_tuple:candidate_tuple[1],reverse=1)[0:3]
+	candidate = sorted(candidate,key=lambda candidate_tuple:candidate_tuple[1],reverse=1)[0:3]#提取三个
 	print candidate
 	sim_candidate = []
 	for item in candidate:
-		pass
+		if item_match_sim.has_key(item[0]):
+			sim_candidate.extend(item_match_sim[item[0]]["matchset"])
+	print sim_candidate
 
 
 
