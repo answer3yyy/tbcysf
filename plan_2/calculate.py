@@ -30,6 +30,53 @@ def test_matchJudge(item_title,item_image):
 	with open("G:\\dev\\tianchi\\data\\matchjudge.json", "w") as f:
 		json.dump(d, f)
 
+def findResult(rec,item_title,item_image,item,item_match_sim,num=3):
+	cat = item_title[rec]["cat"]
+	#print cat
+	candidate = []
+	time1 = time.time()
+	for i in item:
+		temp = matchJudge(rec,i,item_title,item_image)
+
+		if temp[1] == 1:
+			if temp[2] > 0.2:
+				candidate.append((i,temp[2],temp[0]))
+		#break
+	#print candidate
+	#print len(candidate)
+	time2 = time.time()
+	#print str(time2-time1)
+	candidate = sorted(candidate,key=lambda candidate_tuple:candidate_tuple[1],reverse=1)[0:num]#提取三个
+	#print candidate
+	sim_candidate = []#映射过去的集合
+	for ii in candidate:
+		if item_match_sim.has_key(ii[0]):
+			temp = item_match_sim[ii[0]]["matchset"]
+			for i in temp:
+				sim_candidate.append((i,ii[1]))
+	#print sim_candidate
+	result = []#最后结果
+	for i in sim_candidate:
+		for j in item:
+			temp = matchJudge(i[0],j,item_title,item_image)
+			if temp[1] ==1:
+				if temp[2] > 0.2:
+					result.append((j,1.0*temp[2]*i[1]))
+	result = sorted(result,key=lambda result_tuple:result_tuple[1],reverse=1)[0:200]
+	return result
+
+def optResult(rec,item_title,item_image,item,item_match_sim):
+	temp = 0
+	k = 5
+	result = findResult(rec,item_title,item_image,item,item_match_sim,k)
+	while result[-1][1] > temp:
+		print k,result[-1][1],temp
+		temp = result[-1][1]
+		k += 1
+		result = findResult(rec,item_title,item_image,item,item_match_sim,k)
+	return result
+
+
 
 
 if __name__ == '__main__':
@@ -43,39 +90,9 @@ if __name__ == '__main__':
 	item_match_sim = idata.dim_item_match_sim()#{"xxx":{matchset:[],simset:[]}}
 	#print len(item),len(item_match_sim)
 	print "data ready!"
-	cat = item_title[rec]["cat"]
-	print cat
-	candidate = []
-	time1 = time.time()
-	for i in item:
-		temp = matchJudge(rec,i,item_title,item_image)
-
-		if temp[1] == 1:
-			if temp[2] > 0.2:
-				candidate.append((i,temp[2],temp[0]))
-		#break
-	print candidate
-	print len(candidate)
-	time2 = time.time()
-	print str(time2-time1)
-	candidate = sorted(candidate,key=lambda candidate_tuple:candidate_tuple[1],reverse=1)[0:3]#提取三个
-	print candidate
-	sim_candidate = []#映射过去的集合
-	for ii in candidate:
-		if item_match_sim.has_key(ii[0]):
-			temp = item_match_sim[ii[0]]["matchset"]
-			for i in temp:
-				sim_candidate.append((i,ii[1]))
-	print sim_candidate
-	result = []#最后结果
-	for i in sim_candidate:
-		for j in item:
-			temp = matchJudge(i[0],j,item_title,item_image)
-			if temp[1] ==1:
-				if temp[2] > 0.2:
-					result.append((j,1.0*temp[2]*i[1]))
-	result = sorted(result,key=lambda result_tuple:result_tuple[1],reverse=1)[0:200]
+	result = optResult(rec,item_title,item_image,item,item_match_sim)
 	print result
+	
 
 
 
