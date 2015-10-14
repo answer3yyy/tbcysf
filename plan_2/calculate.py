@@ -60,11 +60,23 @@ if __name__ == '__main__':
 	print str(time2-time1)
 	candidate = sorted(candidate,key=lambda candidate_tuple:candidate_tuple[1],reverse=1)[0:3]#提取三个
 	print candidate
-	sim_candidate = []
-	for item in candidate:
-		if item_match_sim.has_key(item[0]):
-			sim_candidate.extend(item_match_sim[item[0]]["matchset"])
+	sim_candidate = []#映射过去的集合
+	for ii in candidate:
+		if item_match_sim.has_key(ii[0]):
+			temp = item_match_sim[ii[0]]["matchset"]
+			for i in temp:
+				sim_candidate.append((i,ii[1]))
 	print sim_candidate
+	result = []#最后结果
+	for i in sim_candidate:
+		for j in item:
+			temp = matchJudge(i[0],j,item_title,item_image)
+			if temp[1] ==1:
+				if temp[2] > 0.2:
+					result.append((j,1.0*temp[2]*i[1]))
+	result = sorted(result,key=lambda result_tuple:result_tuple[1],reverse=1)[0:200]
+	print result
+
 
 
 
