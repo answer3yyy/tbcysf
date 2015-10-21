@@ -126,6 +126,15 @@ def matchFix():
 		#break
 	return resultSet
 
+def test_item():
+	f = codecs.open("G:\\dev\\tianchi\\data\\test_items.txt","r").readlines()
+	temp = []
+	for line in f:
+		line = line.replace("\r\n","")
+		line = line.replace("\n","")
+		temp.append(line)
+	f = temp
+	return f
 
 
 #----------------------------------------------------------------------------------------

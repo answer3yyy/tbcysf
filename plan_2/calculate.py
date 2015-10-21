@@ -70,7 +70,7 @@ def optResult(rec,item_title,item_image,item,item_match_sim):
 	k = 5
 	result = findResult(rec,item_title,item_image,item,item_match_sim,k)
 	while result[-1][1] > temp:
-		print k,result[-1][1],temp
+		#print k,result[-1][1],temp
 		temp = result[-1][1]
 		k += 1
 		result = findResult(rec,item_title,item_image,item,item_match_sim,k)
@@ -80,7 +80,10 @@ def optResult(rec,item_title,item_image,item,item_match_sim):
 
 
 if __name__ == '__main__':
-	rec = "2232"#推荐商品
+	#rec = "2232"#推荐商品
+	test_item = idata.test_item()#[XXX,XXX]
+	#test_item = test_item[]
+	print test_item,len(test_item)
 	item_title = idata.dim_item_title()#{"XXX":{"title":[],"cat":"xxx"}}
 	#print item_title
 	item_image = idata.dim_item_image()#{"XXX":"00101010010"}
@@ -90,9 +93,20 @@ if __name__ == '__main__':
 	item_match_sim = idata.dim_item_match_sim()#{"xxx":{matchset:[],simset:[]}}
 	#print len(item),len(item_match_sim)
 	print "data ready!"
-	result = optResult(rec,item_title,item_image,item,item_match_sim)
-	print result
-	
+	final_result = {}
+	for k in xrange(len(test_item)):
+		t1 = time.time()
+		rec = test_item[k]
+		#result = optResult(rec,item_title,item_image,item,item_match_sim)
+		result = findResult(rec,item_title,item_image,item,item_match_sim,num=1)
+		result = [i[0] for i in result]
+		#print result
+		final_result[rec] = result
+		t2 = time.time()
+		print 1.0*k/len(test_item),t2-t1
+		with open("G:\\dev\\tbcysf\\plan_2\\result.json", "w") as f:
+			json.dump(final_result, f)
+		
 
 
 
